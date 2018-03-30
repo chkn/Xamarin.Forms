@@ -7,7 +7,7 @@ using Xamarin.Forms.Platform;
 namespace Xamarin.Forms
 {
 	[RenderWith(typeof(_EntryRenderer))]
-	public class Entry : InputView, IFontElement, ITextAlignmentElement, IEntryController, IElementConfiguration<Entry>
+	public class Entry : InputView, IFontElement, ITextAlignmentElement, IEntryController, IElementConfiguration<Entry>, ICommandableElement
 	{
 		public static readonly BindableProperty ReturnTypeProperty = BindableProperty.Create(nameof(ReturnType), typeof(ReturnType), typeof(Entry), ReturnType.Default);
 
@@ -129,6 +129,18 @@ namespace Xamarin.Forms
 		{
 			get => (ClearButtonVisibility)GetValue(ClearButtonVisibilityProperty);
 			set => SetValue(ClearButtonVisibilityProperty, value);
+		}
+
+		ICommand ICommandableElement.Command
+		{
+			get => ReturnCommand;
+			set => ReturnCommand = value;
+		}
+
+		object ICommandableElement.CommandParameter
+		{
+			get => ReturnCommandParameter;
+			set => ReturnCommandParameter = value;
 		}
 
 		double IFontElement.FontSizeDefaultValueCreator() =>
