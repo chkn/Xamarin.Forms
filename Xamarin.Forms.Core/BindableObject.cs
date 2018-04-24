@@ -250,8 +250,6 @@ namespace Xamarin.Forms
 			return bpcontext != null && bpcontext.Binding != null;
 		}
 
-
-
 		internal virtual void OnRemoveDynamicResource(BindableProperty property)
 		{
 		}
