@@ -152,6 +152,7 @@ namespace Xamarin.Forms
 			Internals.Registrar.RegisterAll(new[]
 				{ typeof(ExportRendererAttribute), typeof(ExportCellAttribute), typeof(ExportImageSourceHandlerAttribute), typeof(ExportFontAttribute) });
 			ExpressionSearch.Default = new iOSExpressionSearch();
+			ViewControllerSegueTarget.Init();
 		}
 
 		public static event EventHandler<ViewInitializedEventArgs> ViewInitialized;
