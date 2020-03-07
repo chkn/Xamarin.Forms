@@ -31,7 +31,7 @@ namespace Xamarin.Forms
 					return nav.PopToRootAsync(animated);
 				case NavigationAction.MainPage:
 					Application.Current.MainPage = page;
-					return Task.CompletedTask;
+					return Task.FromResult<object>(null);
 			}
 			throw new ArgumentException("Unknown action", nameof(action));
 		}

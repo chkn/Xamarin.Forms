@@ -191,10 +191,10 @@ namespace Xamarin.Forms.Internals
 
 					case NavigationAction.Push:
 						_pushStack.Value.Add(target.ToPage());
-						return Task.CompletedTask;
+						return Task.FromResult<object>(null);
 					case NavigationAction.Modal:
 						_modalStack.Value.Add(target.ToPage());
-						return Task.CompletedTask;
+						return Task.FromResult<object>(null);
 
 					// It's important these Pop* cases (except PopToRoot) return Task<Page>
 					case NavigationAction.Pop:
@@ -210,7 +210,7 @@ namespace Xamarin.Forms.Internals
 							_pushStack.Value.Clear();
 							_pushStack.Value.Add(root);
 						}
-						return Task.CompletedTask;
+						return Task.FromResult<object>(null);
 				}
 				return this.NavigateAsync(segue.Action, target, segue.IsAnimated);
 			}
