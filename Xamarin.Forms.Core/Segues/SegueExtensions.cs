@@ -59,19 +59,6 @@ namespace Xamarin.Forms
 			return nav.SegueAsync(seg.Segue, target);
 		}
 
-		public static void SetSegue(this ICommandableElement trigger, Segue segue, SegueTarget target)
-			=> SetSegue(trigger, new ValueSegue(segue), target);
-
-		public static void SetSegue(this ICommandableElement trigger, NavigationAction action, SegueTarget target, bool animated = true)
-			=> SetSegue(trigger, new ValueSegue(action, animated), target);
-
-		static void SetSegue(ICommandableElement trigger, ValueSegue segue, SegueTarget target)
-		{
-			var elem = (Element)trigger;
-			Segue.SetTarget(elem, target);
-			trigger.Command = segue.ToCommand(elem);
-		}
-
 		public static bool RequiresTarget(this NavigationAction action) => !action.IsPopping();
 		internal static bool IsPopping(this NavigationAction action) => (action & NavigationAction.Pop) == NavigationAction.Pop;
 		internal static bool ShouldPopModal(this INavigation nav) => nav.ModalStack.Count > 0;
