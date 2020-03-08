@@ -181,19 +181,23 @@ namespace Xamarin.Forms.Internals
 
 		protected internal virtual Task OnSegue(ValueSegue segue, SegueTarget target)
 		{
+			if (target is UriSegueTarget shellTarget)
+				return Shell.Current.GoToAsync(shellTarget.ToUri(), segue.IsAnimated);
+
 			INavigation currentInner = Inner;
 			if (currentInner == null)
 			{
+				var pageTarget = (PageSegueTarget)target;
 				switch (segue.Action)
 				{
 					case NavigationAction.Show:
 						throw new InvalidOperationException($"Navigation must be rooted to use {nameof(NavigationAction.Show)}");
 
 					case NavigationAction.Push:
-						_pushStack.Value.Add(target.ToPage());
+						_pushStack.Value.Add(pageTarget.ToPage());
 						return Task.FromResult<object>(null);
 					case NavigationAction.Modal:
-						_modalStack.Value.Add(target.ToPage());
+						_modalStack.Value.Add(pageTarget.ToPage());
 						return Task.FromResult<object>(null);
 
 					// It's important these Pop* cases (except PopToRoot) return Task<Page>

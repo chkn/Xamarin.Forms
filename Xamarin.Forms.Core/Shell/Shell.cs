@@ -1245,38 +1245,46 @@ namespace Xamarin.Forms
 
 			protected override void OnInsertPageBefore(Page page, Page before) => SectionProxy.InsertPageBefore(page, before);
 
-			protected override Task<Page> OnPopAsync(bool animated) => SectionProxy.PopAsync(animated);
-
-			protected override Task OnPopToRootAsync(bool animated) => SectionProxy.PopToRootAsync(animated);
-
-			protected override Task OnPushAsync(Page page, bool animated) => SectionProxy.PushAsync(page, animated);
-
 			protected override void OnRemovePage(Page page) => SectionProxy.RemovePage(page);
 
-			protected override Task<Page> OnPopModal(bool animated)
+			protected internal override Task OnSegue(ValueSegue segue, SegueTarget target)
 			{
-				if (ModalStack.Count > 0)
-					ModalStack[ModalStack.Count - 1].SendDisappearing();
+				if (target is UriSegueTarget shellTarget)
+					return _shell.GoToAsync(shellTarget.ToUri(), segue.IsAnimated);
 
-				if (!_shell.CurrentItem.CurrentItem.IsPoppingModalStack)
+				switch (segue.Action)
 				{
-					if (ModalStack.Count == 1)
-						_shell.CurrentItem.SendAppearing();
-					else if (ModalStack.Count > 1)
-						ModalStack[ModalStack.Count - 2].SendAppearing();
+					case NavigationAction.PopModal:
+					case NavigationAction.Pop when this.ShouldPopModal():
+						if (ModalStack.Count > 0)
+							ModalStack[ModalStack.Count - 1].SendDisappearing();
+
+						if (!_shell.CurrentItem.CurrentItem.IsPoppingModalStack)
+						{
+							if (ModalStack.Count == 1)
+								_shell.CurrentItem.SendAppearing();
+							else if (ModalStack.Count > 1)
+								ModalStack[ModalStack.Count - 2].SendAppearing();
+						}
+						break;
+
+					case NavigationAction.Modal:
+						var modal = ((PageSegueTarget)target).ToPage(out target);
+						if (ModalStack.Count == 0)
+							_shell.CurrentItem.SendDisappearing();
+
+						if (!_shell.CurrentItem.CurrentItem.IsPushingModalStack)
+							modal.SendAppearing();
+						break;
+
+					case NavigationAction.Push:
+					case NavigationAction.Pop:
+					case NavigationAction.PopPushed:
+					case NavigationAction.PopToRoot:
+						return SectionProxy.OnSegue(segue, target);
 				}
 
-				return base.OnPopModal(animated);
-			}
-			protected override Task OnPushModal(Page modal, bool animated)
-			{
-				if (ModalStack.Count == 0)
-					_shell.CurrentItem.SendDisappearing();
-
-				if(!_shell.CurrentItem.CurrentItem.IsPushingModalStack)
-					modal.SendAppearing();
-
-				return base.OnPushModal(modal, animated);
+				return base.OnSegue(segue, target);
 			}
 		}
 	}

@@ -185,6 +185,12 @@ namespace Xamarin.Forms.Platform.iOS
 
 		async Task INavigation.SegueAsync(Segue segue, SegueTarget target)
 		{
+			if (target is UriSegueTarget shellTarget)
+			{
+				await Shell.Current.GoToAsync(shellTarget.ToUri(), segue.IsAnimated);
+				return;
+			}
+
 			Page page = null;
 			var action = segue.Action;
 
@@ -202,9 +208,10 @@ namespace Xamarin.Forms.Platform.iOS
 				case NavigationAction.Show:
 				case NavigationAction.Modal:
 				case NavigationAction.MainPage:
-					page = target.ToPage();
-					if (target.IsTemplate)
-						target = (SegueTarget)page;
+					var pageTarget = (PageSegueTarget)target;
+					page = pageTarget.ToPage();
+					if (pageTarget.IsTemplate)
+						target = new PageSegueTarget(page);
 					break;
 				default:
 					throw new InvalidOperationException($"{action} is not supported globally on iOS, please use a NavigationPage.");

@@ -8,7 +8,7 @@ using Xamarin.Forms.Platform.iOS;
 
 namespace Xamarin.Forms
 {
-	public sealed class ViewControllerSegueTarget : SegueTarget
+	public sealed class ViewControllerSegueTarget : PageSegueTarget
 	{
 		public UIViewController ViewController { get; }
 

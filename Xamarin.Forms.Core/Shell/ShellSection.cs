@@ -882,32 +882,35 @@ namespace Xamarin.Forms
 
 			protected override void OnInsertPageBefore(Page page, Page before) => _owner.OnInsertPageBefore(page, before);
 
-			protected override Task<Page> OnPopAsync(bool animated) => _owner.OnPopAsync(animated);
-
-			protected override Task OnPopToRootAsync(bool animated) => _owner.OnPopToRootAsync(animated);
-
-			protected override Task OnPushAsync(Page page, bool animated) => _owner.OnPushAsync(page, animated);
-
 			protected override void OnRemovePage(Page page) => _owner.OnRemovePage(page);
 
-			protected override Task<Page> OnPopModal(bool animated)
+			protected internal override Task OnSegue(ValueSegue segue, SegueTarget target)
 			{
-				if(ModalStack.Count == 1)
+				if (target is UriSegueTarget shellTarget)
+					return _owner.Shell.GoToAsync(shellTarget.ToUri(), segue.IsAnimated);
+
+				switch (segue.Action)
 				{
-					_owner.PresentedPageAppearing();
+					case NavigationAction.PopModal:
+					case NavigationAction.Pop when this.ShouldPopModal():
+						if (ModalStack.Count == 1)
+							_owner.PresentedPageAppearing();
+						break;
+
+					case NavigationAction.Modal:
+						if (ModalStack.Count == 0)
+							_owner.PresentedPageDisappearing();
+						break;
+
+					case NavigationAction.Pop:
+					case NavigationAction.PopPushed:
+						return _owner.OnPopAsync(segue.IsAnimated);
+
+					case NavigationAction.Push: return _owner.OnPushAsync(((PageSegueTarget)target).ToPage(), segue.IsAnimated);
+					case NavigationAction.PopToRoot: return _owner.OnPopToRootAsync(segue.IsAnimated);
 				}
 
-				return base.OnPopModal(animated);
-			}
-
-			protected override Task OnPushModal(Page modal, bool animated)
-			{
-				if (ModalStack.Count == 0)
-				{
-					_owner.PresentedPageDisappearing();
-				}
-
-				return base.OnPushModal(modal, animated);
+				return base.OnSegue(segue, target);
 			}
 		}
 	}

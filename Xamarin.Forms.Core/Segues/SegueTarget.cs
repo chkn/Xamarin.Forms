@@ -5,56 +5,23 @@ using Xamarin.Forms.Xaml;
 
 namespace Xamarin.Forms
 {
-	public class SegueTarget
+	public abstract class SegueTarget
 	{
-		readonly Page target;
-		readonly DataTemplate template;
-
-		public bool IsTemplate => template != null;
-
-		public SegueTarget(Page target)
-		{
-			if (target == null)
-				throw new ArgumentNullException (nameof(target));
-			this.target = target;
-		}
-
-		public SegueTarget(DataTemplate template)
-		{
-			if (template == null)
-				throw new ArgumentNullException(nameof(template));
-			this.template = template;
-		}
-
-		protected SegueTarget()
+		internal SegueTarget()
 		{
 		}
 
-		/// <summary>
-		/// Gets or creates the <see cref="Page"/> for this <see cref="SegueTarget"/>
-		/// </summary>
-		/// <remarks>
-		/// If this instance was created directly from a <see cref="Page"/>, returns that instance.
-		///  Otherwise, attempts to instantiate a new page from the <see cref="DataTemplate"/>.
-		/// </remarks>
-		public virtual Page ToPage()
-		{
-			if (target != null)
-				return target;
+		// UriSegueTarget:
+		public static implicit operator SegueTarget(Uri uri) => (uri == null) ? null : new UriSegueTarget(uri);
+		public static implicit operator SegueTarget(string str)
+			=> (str == null) ? null : new UriSegueTarget(ShellUriHandler.CreateUri(str));
 
-			var obj = template.CreateContent();
-			if (obj is Page page)
-				return page;
-
-			// This could be a native object that we can convert to a page..
-			return obj.ConvertTo(typeof(Page), (Func<object>)null, null) as Page;
-		}
-
-		public static implicit operator SegueTarget(Type ty) => (ty == null) ? null : new SegueTarget(new DataTemplate(ty));
-		public static implicit operator SegueTarget(DataTemplate dt) => (dt == null) ? null : new SegueTarget(dt);
+		// PageSegueTarget:
+		public static implicit operator SegueTarget(Type ty) => (ty == null) ? null : new PageSegueTarget(new DataTemplate(ty));
+		public static implicit operator SegueTarget(DataTemplate dt) => (dt == null) ? null : new PageSegueTarget(dt);
 
 		// The conversion from Page is explicit because we don't want people accidently
 		//  using raw Page in XAML when they should be using DataTemplate..
-		public static explicit operator SegueTarget(Page page) => (page == null) ? null : new SegueTarget(page);
+		public static explicit operator SegueTarget(Page page) => (page == null) ? null : new PageSegueTarget(page);
 	}
 }

@@ -477,24 +477,30 @@ namespace Xamarin.Forms
 
 		async Task SegueAsyncInner(ValueSegue seg, SegueTarget target)
 		{
-			var exec = seg.Segue as ISegueExecution;
-			if (exec != null)
+			if (target is UriSegueTarget shellTarget)
+			{
+				await Shell.Current.GoToAsync(shellTarget.ToUri(), seg.IsAnimated);
+				return;
+			}
+
+			if (seg.Segue is ISegueExecution exec)
 			{
 				switch (seg.Action)
 				{
 					case NavigationAction.Show:
 					case NavigationAction.Push:
-						if (target.IsTemplate)
-							target = (SegueTarget)target.ToPage();
+						var pageTarget = (PageSegueTarget)target;
+						if (pageTarget.IsTemplate)
+							target = new PageSegueTarget(pageTarget.ToPage());
 						break;
 					case NavigationAction.Pop:
 					case NavigationAction.PopPushed:
 						var page = (Page)InternalChildren[InternalChildren.Count - 2];
-						target = (SegueTarget)page;
+						target = new PageSegueTarget (page);
 						break;
 
 					case NavigationAction.PopToRoot:
-						target = (SegueTarget)RootPage;
+						target = new PageSegueTarget (RootPage);
 						break;
 				}
 				if (!await exec.OnBeforeExecute(target))
@@ -521,7 +527,7 @@ namespace Xamarin.Forms
 				{
 					case NavigationAction.Show:
 					case NavigationAction.Push:
-						await PushAsyncInner(target.ToPage(), seg.IsAnimated);
+						await PushAsyncInner(((PageSegueTarget)target).ToPage(), seg.IsAnimated);
 						break;
 
 					case NavigationAction.Pop:

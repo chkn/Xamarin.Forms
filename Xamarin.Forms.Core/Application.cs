@@ -403,12 +403,13 @@ namespace Xamarin.Forms
 
 			async Task OnPushModal(ValueSegue segue, SegueTarget target)
 			{
-				var modal = target.ToPage();
+				if (target is UriSegueTarget shellTarget)
+				{
+					await Shell.Current.GoToAsync(shellTarget.ToUri(), segue.IsAnimated);
+					return;
+				}
 
-				// IMPORTANT! If the target was a template, create a new SegueTarget from
-				//  the instantiated page.
-				if (target.IsTemplate)
-					target = (SegueTarget)modal;
+				var modal = ((PageSegueTarget)target).ToPage(out target);
 
 				_owner.OnModalPushing(modal);
 

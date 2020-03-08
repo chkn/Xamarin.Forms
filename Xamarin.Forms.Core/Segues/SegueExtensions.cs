@@ -52,9 +52,13 @@ namespace Xamarin.Forms
 			if (nav is NavigationProxy proxy)
 				return proxy.OnSegue(seg, target);
 
+			// If it's a shell navigation, dispatch directly to that..
+			if (target is UriSegueTarget shellTarget)
+				return Shell.Current.GoToAsync(shellTarget.ToUri(), seg.IsAnimated);
+
 			// If this is a simple navigation, bypass the Segue machinery...
 			if (seg.Segue == null)
-				return nav.NavigateAsync(seg.Action, target?.ToPage(), seg.IsAnimated);
+				return nav.NavigateAsync(seg.Action, (target as PageSegueTarget)?.ToPage(), seg.IsAnimated);
 
 			return nav.SegueAsync(seg.Segue, target);
 		}
